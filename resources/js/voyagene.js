@@ -4,7 +4,7 @@ import { ViolinController, ViolinChart, Violin } from '@sgratzl/chartjs-chart-bo
 // Register the ViolinController with Chart.js
 Chart.register(ViolinController, ViolinChart, Violin);
 
-async function fetchChartData(url = '', color_by = '') {
+async function fetchChartData(url = '', color_by = 'celltypes') {
     console.log('getting chart data');
     // Default options are marked with *
     const response = await fetch(url, {
@@ -265,3 +265,8 @@ window.splitChart = splitChart;
 window.singleChart = singleChart;
 window.violinChart = violinChart;
 window.scatterChart = scatterChart;
+
+window.sessionConfig = {
+    color_by: 'celltypes',
+    chart_type: 'UMAP'
+};

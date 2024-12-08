@@ -28,8 +28,8 @@ class GeneDropdown extends Component
     public function select($option) {
         $this->selectedOption = $option;
         $this->search = $option;
-        $this->dispatch('updateChart', color_by: $this->selectedOption, chart_type: 'expression');
-        dd($this);
+        $this->dispatch('updateChart', color_by: $this->selectedOption);
+//        dd($this);
     }
 
     public function render()
