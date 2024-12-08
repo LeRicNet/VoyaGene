@@ -19,6 +19,7 @@ class IdentityDropdown extends Component
 
     public function select($option) {
         $this->selectedOption = $option;
+        $this->dispatch('color-by-changed', color_by: $this->selectedOption);
         if ($this->selectedOption === 'Gene Expression') {
             $this->dispatch('show-gene-dropdown');
         } else {

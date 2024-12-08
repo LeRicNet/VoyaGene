@@ -27,14 +27,11 @@
                 </div>
 
                 <div class="my-8">
-                    <div>
-                        <input type="checkbox" wire:model="chartMode" wire:click="updateChart" class="form-checkbox h-5 w-5 text-indigo-600 transition duration-300 ease-in-out">
-                        <label class="ml-2">Chart Mode</label>
-                    </div>
+                    <livewire:ui.controls.identity-dropdown />
                 </div>
 
                 <div class="my-8">
-                    <livewire:ui.controls.identity-dropdown />
+                    <livewire:ui.controls.split-plot-toggle />
                 </div>
 
                 @if($show_gene_dropdown)
@@ -52,11 +49,11 @@
                 $wire.on('updateChart', (e) => {
                     let url = '{{ $chartUrl }}';
                     console.log(`chart type: ${e.chart_type}, split by celltype: ${e.chartMode}, color by: ${e.color_by}`);
-                    console.log(e);
                     // const chart_type = e.chart_type || 'UMAP';
                     // const color_by = e.color_by || 'celltypes';
-                    window.sessionConfig.chart_type = e.chart_type || window.sessionConfig.chart_type
-                    window.sessionConfig.color_by = e.color_by || window.sessionConfig.color_by
+                    window.sessionConfig.chart_type = e.chart_type !== undefined ? e.chart_type : window.sessionConfig.chart_type;
+                    window.sessionConfig.color_by = e.color_by !== undefined ? e.color_by : window.sessionConfig.color_by;
+                    window.sessionConfig.split_plot = e.chartMode !== undefined ? e.chartMode : window.sessionConfig.split_plot;
 
                     if (window.sessionConfig.chart_type == 'expression') {
                         url = url.replace('plotDimReduction', 'plotViolin');
@@ -65,7 +62,7 @@
                     fetchChartData(url, window.sessionConfig.color_by)
                         .then(data => {
                             if (window.sessionConfig.chart_type == 'UMAP') {
-                                if (e.chartMode == true) {
+                                if (window.sessionConfig.split_plot == true) {
                                     splitChart(data);
                                 } else {
                                     singleChart(data);

@@ -19,7 +19,8 @@
 </head>
 <body>
 
-<main id="container" class="h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 flex flex-row">
+<main id="container" class="h-full
+bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 flex flex-row">
     <div class="shrink">
         <livewire:ui.control-panel />
     </div>

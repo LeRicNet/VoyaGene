@@ -16,40 +16,142 @@ async function fetchChartData(url = '', color_by = 'celltypes') {
     });
     return response.json(); // parses JSON response into native JavaScript objects
 }
-
 function singleChart(data) {
-
     const chartsContainer = document.getElementById('chartsContainer');
     chartsContainer.innerHTML = '';
-    // const canvasContainer = document.createElement('div');
     const canvas = document.createElement('canvas');
     canvas.id = `scatterPlot`;
-    // canvas.height = 500;
-    // canvas.width = 900;
     chartsContainer.appendChild(canvas);
 
     const ctx = canvas.getContext('2d');
-    const scatterData = {
-        datasets: [{
-            label: 'Scatter Dataset',
-            data: data.map(item => ({ x: item.Dim1, y: item.Dim2 })),
-            backgroundColor: data.map(item => item.color)
-        }]
-    };
 
-    const scatterChart = new Chart(ctx, {
-        type: 'scatter',
-        data: scatterData,
-        options: {
-            scales: {
-                x: {
-                    type: 'linear',
-                    position: 'bottom'
+    const specialCategories = ['celltypes', 'level', 'sample_id', 'seurat_clusters'];
+
+    if (!specialCategories.includes(window.sessionConfig.color_by)) {
+        // Original function logic
+        const scatterData = {
+            datasets: [{
+                label: `${window.sessionConfig.color_by}`,
+                data: data.map(item => ({ x: item.Dim1, y: item.Dim2 })),
+                backgroundColor: data.map(item => item.color)
+            }]
+        };
+
+        const scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: scatterData,
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            color: 'white'
+                        }
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // New function logic
+        const uniqueCategories = [...new Set(data.map(item => item.category))];
+        const categoryColors = uniqueCategories.reduce((acc, category, index) => {
+            acc[category] = data.find(item => item.category === category).color;
+            return acc;
+        }, {});
+
+        const scatterData = {
+            datasets: uniqueCategories.map(category => ({
+                label: category,
+                data: data.filter(item => item.category === category).map(item => ({ x: item.Dim1, y: item.Dim2 })),
+                backgroundColor: categoryColors[category]
+            }))
+        };
+
+        const scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: scatterData,
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            color: 'white'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
+// function singleChart(data) {
+//
+//     const chartsContainer = document.getElementById('chartsContainer');
+//     chartsContainer.innerHTML = '';
+//     // const canvasContainer = document.createElement('div');
+//     const canvas = document.createElement('canvas');
+//     canvas.id = `scatterPlot`;
+//     // canvas.height = 500;
+//     // canvas.width = 900;
+//     chartsContainer.appendChild(canvas);
+//
+//     const ctx = canvas.getContext('2d');
+//     const scatterData = {
+//         datasets: [{
+//             label: `${window.sessionConfig.color_by}`,
+//             data: data.map(item => ({ x: item.Dim1, y: item.Dim2 })),
+//             backgroundColor: data.map(item => item.color)
+//         }]
+//     };
+//
+//     const scatterChart = new Chart(ctx, {
+//         type: 'scatter',
+//         data: scatterData,
+//         options: {
+//             scales: {
+//                 x: {
+//                     type: 'linear',
+//                     position: 'bottom'
+//                 }
+//             },
+//             plugins: {
+//                 legend: {
+//                     labels: {
+//                         font: {
+//                             weight: 'bold',
+//                             size: 14
+//                         },
+//                         color: 'white'
+//                     }
+//                 }
+//             }
+//         },
+//     });
+// }
 
 function splitChart(data) {
     const groupedData = data.reduce((acc, item) => {
@@ -92,6 +194,17 @@ function splitChart(data) {
                     x: {
                         type: 'linear',
                         position: 'bottom'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        color: 'white'
                     }
                 }
             }
@@ -268,5 +381,6 @@ window.scatterChart = scatterChart;
 
 window.sessionConfig = {
     color_by: 'celltypes',
-    chart_type: 'UMAP'
+    chart_type: 'UMAP',
+    split_plot: false
 };
